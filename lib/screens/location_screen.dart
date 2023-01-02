@@ -26,12 +26,21 @@ class _LocationScreenState extends State<LocationScreen> {
   late String msg;
 
   void updateUi(dynamic weatherData) {
-    double temp = weatherData['main']['temp'];
-    temperature = temp.toInt();
-    int condition = weatherData['weather'][0]['id'];
-    weatherIcon = weatherModel.getWeatherIcon(condition);
-    msg = weatherModel.getMessage(temperature);
-    cityName = weatherData['name'];
+    setState(() {
+      if (weatherData == null) {
+        temperature = 0;
+        weatherIcon = 'error';
+        msg = 'Unknown weather';
+        cityName = '';
+        return;
+      }
+      double temp = weatherData['main']['temp'];
+      temperature = temp.toInt();
+      int condition = weatherData['weather'][0]['id'];
+      weatherIcon = weatherModel.getWeatherIcon(condition);
+      msg = weatherModel.getMessage(temperature);
+      cityName = weatherData['name'];
+    });
   }
 
   @override
@@ -67,12 +76,15 @@ class _LocationScreenState extends State<LocationScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
+                      var returnedValOnPop = Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => CityScreen(),
                         ),
                       );
+                      if (returnedValOnPop != null) {
+                        updateUi(returnedValOnPop);
+                      }
                     },
                     child: const Icon(
                       Icons.location_city,
